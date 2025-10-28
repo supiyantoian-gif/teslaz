@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Laporan Karaoke</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f8fb;
+      margin: 0;
+      padding: 10px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      padding: 10px 15px 15px 15px;
+    }
+    h1 {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 18px;
+      color: #4b2b80;
+      letter-spacing: 0.5px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 12px;
+      border-bottom: 1.5px solid #000;
+      padding-bottom: 5px;
+    }
+    .header div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .header label {
+      font-weight: 600;
+      color: #333;
+      min-width: 60px;
+    }
+    .header input {
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-size: 12px;
+      background: #f9f9ff;
+    }
+    input[type="date"] {
+      width: 130px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    th {
+      background: #5b2c83;
+      color: #fff;
+      text-align: left;
+      padding: 4px 6px;
+      font-weight: 600;
+      border: 1px solid #000;
+    }
+    th:nth-child(1) { width: 75%; }
+    th:nth-child(2) { width: 25%; }
+    td {
+      border: 1px solid #000;
+      padding: 0;
+    }
+    input[type="text"] {
+      width: 100%;
+      border: none;
+      padding: 5px;
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+    td:nth-child(2) input[type="text"] {
+      text-align: left;
+      padding-left: 10px;
+    }
+    input[type="text"]:focus, textarea:focus {
+      outline: 1px solid #c4a7ff;
+    }
+    textarea {
+      width: 100%;
+      border: none;
+      padding: 5px;
+      font-size: 12px;
+      margin-top: 5px;
+      resize: none;
+      height: 50px;
+      background: #fff;
+    }
+    .actions {
+      text-align: right;
+      padding: 5px 0;
+    }
+    button {
+      background: #5b2c83;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #6f3aa3;
+    }
+    hr {
+      border: none;
+      border-top: 1.5px solid #000;
+      margin: 15px 0;
+    }
+    .summary-text {
+      font-size: 12px;
+      line-height: 1.8;
+      text-align: right;
+    }
+    .summary-line {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 5px;
+    }
+    .summary-line .label {
+      font-weight: 600;
+      color: #333;
+      min-width: 150px;
+      text-align: right;
+    }
+    .summary-line .value {
+      font-weight: bold;
+      color: #000;
+      min-width: 100px;
+      text-align: left;
+      position: relative;
+    }
+    #totalPengeluaran {
+      display: inline-block;
+      border-bottom: 2px solid #000;
+      padding-bottom: 2px;
+    }
+
+    /* Pengaturan otomatis ukuran A4 saat print */
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+    @media print {
+      body {
+        background: white;
+        -webkit-print-color-adjust: exact;
+      }
+      .container {
+        box-shadow: none;
+      }
+      button {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LAPORAN KARAOKE</h1>
+
+    <div class="header">
+      <div>
+        <label for="tanggalInput">Tanggal:</label>
+        <input type="date" id="tanggalInput">
+      </div>
+      <div>
+        <label for="cashInputTop">Cash:</label>
+        <input type="text" id="cashInputTop" placeholder="Rp..." oninput="syncCash();">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="addRow()">Tambah Baris</button>
+      <button onclick="window.print()">Print</button>
+    </div>
+
+    <table id="pengeluaranTable">
+      <thead>
+        <tr>
+          <th>PENGELUARAN</th>
+          <th>RP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="text" placeholder="Tuliskan pengeluaran..."></td>
+          <td><input type="text" placeholder="Rp..." oninput="formatRupiah(this); hitungTotal();"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <div class="summary-text">
+      <div class="summary-line">
+        <span class="label">CASH:</span>
+        <span id="cashBottom" class="value">Rp 0</span>
+      </div>
+      <div class="summary-line">
+        <span class="label">TOTAL PENGELUARAN:</span>
+        <span id="totalPengeluaran" class="value">Rp 0</span>
+      </div>
+      <div class="summary-line">
+        <span class="label">SISA CASH:</span>
+        <span id="sisaCash" class="value">Rp 0</span>
+      </div>
+    </div>
+
+    <div>
+      <label for="keterangan" style="font-weight:600; color:#333;">KETERANGAN LAIN:</label>
+      <textarea id="keterangan" placeholder="Tulis catatan tambahan di sini..."></textarea>
+    </div>
+  </div>
+
+  <script>
+    // tanggal otomatis
+    window.addEventListener("load", () => {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      document.getElementById("tanggalInput").value = `${yyyy}-${mm}-${dd}`;
+    });
+
+    function formatRupiah(input) {
+      let value = input.value.replace(/[^0-9]/g, "");
+      if (!value) { input.value = ""; return; }
+      input.value = "Rp " + value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function parseRupiah(str) {
+      return Number(str.replace(/[^0-9]/g, "")) || 0;
+    }
+
+    function hitungTotal() {
+      let total = 0;
+      document.querySelectorAll("#pengeluaranTable tbody tr").forEach(tr => {
+        const nominal = tr.querySelectorAll("input")[1];
+        if (nominal) total += parseRupiah(nominal.value);
+      });
+
+      const cash = parseRupiah(document.getElementById("cashInputTop").value);
+      const sisa = cash - total;
+
+      document.getElementById("totalPengeluaran").textContent = "Rp " + total.toLocaleString("id-ID");
+      document.getElementById("cashBottom").textContent = "Rp " + cash.toLocaleString("id-ID");
+      document.getElementById("sisaCash").textContent = "Rp " + sisa.toLocaleString("id-ID");
+      document.getElementById("sisaCash").style.color = sisa < 0 ? "red" : "black";
+    }
+
+    function addRow() {
+      const tbody = document.querySelector("#pengeluaranTable tbody");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input type="text" placeholder="Tuliskan pengeluaran..."></td>
+        <td><input type="text" placeholder="Rp..." oninput="formatRupiah(this); hitungTotal();"></td>
+      `;
+      tbody.appendChild(row);
+    }
+
+    function syncCash() {
+      const cashTop = document.getElementById("cashInputTop");
+      formatRupiah(cashTop);
+      hitungTotal();
+    }
+  </script>
+</body>
+</html>
